@@ -2,7 +2,11 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public abstract class Customer {
     protected String id;
@@ -24,20 +28,40 @@ public abstract class Customer {
     public abstract String getFullName();
     public abstract int getBalance();
     public abstract void topUp(int amount);
-    public abstract boolean addToCart(Menu menuItem, int qty, String startDate);
     abstract Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double shippingFee, double discount, double total);
     public abstract Map<Menu, CartItem> getCart();
-    abstract void confirmPay(int orderNumber);
+
+    public void confirmPay(int orderNumber) {
+        Order order = null;
+        for (Order o : orderHistory) {
+            if (o.orderNumber == orderNumber) {
+                order = o;
+                break;
+            }
+        }
+        if (order != null) {
+            this.balance -= (int) order.total; // Kurangi saldo dengan total biaya pesanan
+        }
+    }
+
+    public boolean addToCart(Menu menuItem, int qty, String startDate) {
+        String key = menuItem.IDMenu + startDate;
+        if (cart.containsKey(key)) {
+            CartItem cartItem = cart.get(key);
+            cartItem.qty += qty;
+            return false; // Updated
+        } else {
+            cart.put(key, new CartItem(menuItem, qty, startDate));
+            return true; // New
+        }
+    }
 
     public boolean removeFromCart(Menu menuItem, int qty) {
-        // Find the cart item corresponding to the provided menu
         for (Map.Entry<String, CartItem> entry : cart.entrySet()) {
             CartItem cartItem = entry.getValue();
             if (cartItem.menuItem.IDMenu.equals(menuItem.IDMenu)) {
-                // Decrement the quantity by the provided amount
                 cartItem.qty -= qty;
                 if (cartItem.qty <= 0) {
-                    // Remove the item from the cart if quantity becomes zero or negative
                     cart.remove(entry.getKey());
                     System.out.println("REMOVE_FROM_CART SUCCESS: " + cartItem.menuItem.NamaMenu + " IS REMOVED");
                 } else {
@@ -46,7 +70,6 @@ public abstract class Customer {
                 return true;
             }
         }
-        // If the menu item is not found in the cart
         System.out.println("REMOVE_FROM_CART FAILED: NON EXISTENT CUSTOMER OR MENU");
         return false;
     }
@@ -68,7 +91,7 @@ public abstract class Customer {
         } else if (!orderHistory.isEmpty()) {
             menusToPrint = orderHistory.get(orderHistory.size() - 1).getMenus();
         } else {
-            System.out.println("No orders to display.");
+            System.out.println("PRINT FAILED: NON EXISTENT ORDER");
             return;
         }
 
@@ -88,7 +111,7 @@ public abstract class Customer {
         System.out.printf("SubTotal                               : %s\n", currencyFormatter.format(subtotal));
         System.out.println("============================================");
         System.out.printf("Total                                  : %s\n", currencyFormatter.format(subtotal));
-        System.out.printf("Saldo                                  : %s\n", currencyFormatter.format(balance));
+        System.out.printf("Saldo                                  : %s\n", currencyFormatter.format(balance - subtotal));
     }
 
     public void printOrderHistory() {
