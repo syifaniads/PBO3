@@ -24,6 +24,16 @@ class Guest extends Customer {
     }
 
     @Override
+    public Promotion getPromo() {
+        return null;
+    }
+
+    @Override
+    public void setPromo(Promotion promo) {
+
+    }
+
+    @Override
     public String getFullName() {
         return "Guest";
     }
