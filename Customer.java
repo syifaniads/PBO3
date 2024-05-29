@@ -15,6 +15,7 @@ public abstract class Customer {
     protected int balance;
     protected Map<String, CartItem> cart;
     protected List<Order> orderHistory;
+    protected boolean isCheckedOut = false;  // Flag untuk mengecek apakah checkout sudah dilakukan
 
     public Customer(String id, String firstName, String lastName, int initialBalance) {
         this.id = id;
@@ -41,6 +42,7 @@ public abstract class Customer {
         }
         if (order != null) {
             this.balance -= (int) order.total; // Kurangi saldo dengan total biaya pesanan
+            this.isCheckedOut = true;  // Set flag bahwa checkout sudah dilakukan
         }
     }
 
@@ -74,7 +76,6 @@ public abstract class Customer {
         return false;
     }
 
-
     public void printOrder() {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -97,8 +98,8 @@ public abstract class Customer {
 
         menusToPrint.sort(Comparator.comparing((CartItem c) -> LocalDate.parse(c.startDate, dateFormatter)).thenComparingDouble(c -> c.menuItem.Harga));
 
-        System.out.println("No | Menu                                 |  Dur. | Subtotal");
-        System.out.println("============================================");
+        System.out.println("No | Menu                           | Dur. | Subtotal");
+        System.out.println("=".repeat(55));
         int no = 1;
         double subtotal = 0;
         for (CartItem cartItem : menusToPrint) {
@@ -107,11 +108,14 @@ public abstract class Customer {
             System.out.printf("     %s - %s\n", cartItem.startDate, LocalDate.parse(cartItem.startDate, dateFormatter).plusDays(cartItem.qty).format(dateFormatter));
             subtotal += itemSubtotal;
         }
-        System.out.println("============================================");
-        System.out.printf("SubTotal                               : %s\n", currencyFormatter.format(subtotal));
-        System.out.println("============================================");
-        System.out.printf("Total                                  : %s\n", currencyFormatter.format(subtotal));
-        System.out.printf("Saldo                                  : %s\n", currencyFormatter.format(balance - subtotal));
+        System.out.println("=".repeat(55));
+        System.out.printf("SubTotal                            :        %s\n", currencyFormatter.format(subtotal));
+        System.out.println("=".repeat(55));
+        System.out.printf("Total                               :        %s\n", currencyFormatter.format(subtotal));
+
+        // Menggunakan saldo awal jika checkout belum dilakukan
+        double balanceToShow = isCheckedOut ? balance : (balance - subtotal);
+        System.out.printf("Saldo                               :        %s\n", currencyFormatter.format(balanceToShow));
     }
 
     public void printOrderHistory() {
