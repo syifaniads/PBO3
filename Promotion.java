@@ -4,7 +4,7 @@ abstract class Promotion implements Applicable, Comparable<Promotion> {
     String promoCode;
     LocalDate startDate;
     LocalDate endDate;
-    int percentPieces;
+    double percentPieces;
     int maxPieces;
     int minPurchase;
     String promoType;
@@ -13,24 +13,26 @@ abstract class Promotion implements Applicable, Comparable<Promotion> {
         this.promoCode = promoCode;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.percentPieces = percentPieces;
+        this.percentPieces = percentPieces * 0.01;
         this.maxPieces = maxPieces;
         this.minPurchase = minPurchase;
         this.promoType = promoType;
     }
 
     @Override
-    public boolean isCustomerEligible(Customer customer) {
-        // Umur akun lebih dari 30 hari
-        if (customer instanceof Guest) {
-            return false; // Guest tidak berlaku
-        }
-        else if (customer instanceof Member) {
-            long membershipDuration = ((Member) customer).getMembershipDuration();
-            return membershipDuration > 30;
-        }
-        return true;
-    }
+    public abstract boolean isCustomerEligible(Customer customer) ;
+//        // Umur akun lebih dari 30 hari
+//        if (customer instanceof Guest) {
+//            System.out.println("funky");
+//            return false; // Guest tidak berlaku
+//        }
+//        else if (customer instanceof Member) {
+//            System.out.println("eloti 6.0");
+//            long membershipDuration = ((Member) customer).getMembershipDuration();
+//            System.out.println(membershipDuration);
+//            return membershipDuration > 30;
+//        }
+//        return true;
     @Override
     public abstract boolean isMinimumPriceEligible(Order order);
 
