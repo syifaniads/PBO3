@@ -18,12 +18,21 @@ public class PercentOffPromo extends Promotion {
 
     @Override
     public boolean isCustomerEligible(Customer customer) {
-        return false;
+
+        // Umur akun lebih dari 30 hari
+        if (customer instanceof Guest) {
+            return false; // Guest tidak berlaku
+        }
+        else if (customer instanceof Member) {
+            long membershipDuration = ((Member) customer).getMembershipDuration();
+            return membershipDuration > 30;
+        }
+        return true;
     }
 
     @Override
     public boolean isMinimumPriceEligible(Order order) {
-        return false;
+        return order.subTotal >= minPurchase;
     }
 
     @Override
@@ -33,7 +42,7 @@ public class PercentOffPromo extends Promotion {
 
     @Override
     public double calculateTotalDiscount(Order order) throws Exception {
-        return 0;
+        return Math.min(order.subTotal * super.percentPieces, super.maxPieces);
     }
 
     @Override
