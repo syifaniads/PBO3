@@ -1,10 +1,13 @@
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
 class Member extends Customer {
     private LocalDate membershipDate;
     private int startBalance;
+    private Order order;
+    Promotion promo;
 
     public Member(String id, String firstName, String lastName, LocalDate membershipDate, int balance) {
         super(id, firstName, lastName, balance);
@@ -13,6 +16,21 @@ class Member extends Customer {
         this.cart = new HashMap<>();
     }
 
+    public Promotion getPromo() {
+        return promo;
+    }
+
+    public void setPromo(Promotion promo) {
+        this.promo = promo;
+    }
+
+    public Order getOrder(){
+        return this.order;
+    }
+
+    public void setOrder(Order order){
+        this.order = order;
+    }
     public String getId() {
         return id;
     }
@@ -47,14 +65,10 @@ class Member extends Customer {
 
     public long getMembershipDuration() {
         LocalDate today = LocalDate.now();
-        return membershipDate.until(today).getDays();
+        long dateMember = ChronoUnit.DAYS.between(membershipDate, today);
+        return dateMember;
     }
 
-    public boolean isEligibleForDiscount() {
-        LocalDate today = LocalDate.now();
-        long membershipDuration = membershipDate.until(today).getDays();
-        return membershipDuration > 100;
-    }
 
     public String toString() {
         return "CREATE MEMBER SUCCESS: " + id + " " + getFullName();
