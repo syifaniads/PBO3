@@ -371,9 +371,6 @@ public class MainTravel {
             case "CASHBACK":
                 newPromo = new CashbackPromo(promoCode, startDate, endDate, percentPieces, maxPieces, minPurchase, promoType);
                 break;
-            case "FREESHIPPING":
-                newPromo = new FreeShippingPromo(promoCode, startDate, endDate, percentPieces, maxPieces, minPurchase, promoType);
-                break;
             case "DISCOUNT":
                 newPromo = new PercentOffPromo(promoCode, startDate, endDate, percentPieces, maxPieces, minPurchase, promoType);
                 break;
@@ -448,14 +445,18 @@ public class MainTravel {
         // Menambahkan item ke keranjang belanja customer
         boolean isNew = customer.addToCart(menuItem, qty, startDate);
 
+        // Mendapatkan kuantitas terbaru dari keranjang
+        CartItem updatedCartItem = customer.cart.get(menuItem.IDMenu + startDate);
+        int updatedQty = updatedCartItem.qty;
+
         // Mengonversi qty menjadi days jika lebih dari 1
-        String dayOrDays = qty > 1 ? "days" : "day";
+        String dayOrDays = updatedQty > 1 ? "days" : "day";
 
         // Mencetak output berdasarkan kondisi apakah item baru atau sudah ada sebelumnya
         if (isNew) {
-            System.out.println("ADD_TO_CART SUCCESS: " + qty + " " + dayOrDays + " " + menuItem.NamaMenu + " " + menuItem.PlatNomor + " (NEW)");
+            System.out.println("ADD_TO_CART SUCCESS: " + updatedQty + " " + dayOrDays + " " + menuItem.NamaMenu + " " + menuItem.PlatNomor + " (NEW)");
         } else {
-            System.out.println("ADD_TO_CART SUCCESS: " + qty + " " + dayOrDays + " " + menuItem.NamaMenu + " " + menuItem.PlatNomor + " (UPDATED)");
+            System.out.println("ADD_TO_CART SUCCESS: " + updatedQty + " " + dayOrDays + " " + menuItem.NamaMenu + " " + menuItem.PlatNomor + " (UPDATED)");
         }
     }
 
@@ -540,7 +541,6 @@ public class MainTravel {
             System.out.println("REMOVE_FROM_CART FAILED: NON EXISTENT CUSTOMER OR MENU");
         }
     }
-
 
     private static void processTopUp(String input) {
         String[] parts = input.split(" ");
