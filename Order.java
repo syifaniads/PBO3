@@ -26,6 +26,7 @@ public class Order {
                 this.status = Status.UNPAID;
         }
 
+        public Order(){}
         public List<CartItem> getMenus() {
                 return menus;
         }
