@@ -461,6 +461,7 @@ public class MainTravel {
     }
 
     private static void processApplyPromo(String input) {
+        Order order = new Order();
         String[] parts = input.split(" ");
         String IDPemesan = parts[1];
         String KodePromo = parts[2];
@@ -476,6 +477,14 @@ public class MainTravel {
             }
 
             Customer customer = customers.get(IDPemesan);
+            int subtotal=0;
+            for (Map.Entry<Menu, CartItem> subtotal1: customer.getCart().entrySet()) {
+                CartItem menu = subtotal1.getValue();
+                Menu menu1 = menu.menuItem;
+                int temp = menu.qty;
+                subtotal += temp*menu1.Harga;
+            }
+            order.subTotal = subtotal;
             if (promo == null || customer == null) {
                 System.out.println("APPLY_PROMO FAILED: " + KodePromo);
                 return;
@@ -483,6 +492,7 @@ public class MainTravel {
 
             LocalDate currentDate = LocalDate.now();
             if (currentDate.isBefore(promo.startDate) || currentDate.isAfter(promo.endDate)) {
+                System.out.println("comel");
                 System.out.println("APPLY_PROMO FAILED: " + KodePromo + " is EXPIRED");
                 return;
             }
@@ -493,19 +503,22 @@ public class MainTravel {
                 return;
             }
 
-            if (promo.isCustomerEligible(customer)) {
+            if (promo.isCustomerEligible(customer) && promo.isMinimumPriceEligible(order)) {
                 // syarat terpenuhi: umur akun lebih dari 30 hari
                 System.out.println("APPLY_PROMO SUCCESS: " + KodePromo);
+                try {
+                    customer.setPromo(promo);
+//                    double totalDiscount = promo.calculateTotalDiscount(null); // Anda perlu menyesuaikan dengan parameter yang dibutuhkan
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Member member = (Member) customer;
+                member.setOrder(order);
                 return;
             }
 
-            // Hitung diskon, cashback, atau potongan biaya pengiriman sesuai jenis promo
-            try {
-                double totalDiscount = promo.calculateTotalDiscount(null); // Anda perlu menyesuaikan dengan parameter yang dibutuhkan
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+
         }
         else if (userCategory == 'G') {
             // syarat tidak terpenuhi: tamu gak bisa dapet promo
@@ -515,6 +528,7 @@ public class MainTravel {
             // syarat tidak terpenuhi: ID pemesanan tidak valid
             System.out.println("APPLY_PROMO FAILED: " + KodePromo);
         }
+
     }
 
     private static void processRemoveFromCart(String input) {
@@ -555,7 +569,7 @@ public class MainTravel {
 
         int saldoAwal = customer.getBalance();
         customer.topUp(topUpAmount);
-        int saldoAkhir = customer.getBalance();
+        int saldoAkhir = customer.balance;
 
         System.out.println("TOPUP SUCCESS: " + customer.getFullName() + " " + saldoAwal + " => " + saldoAkhir);
     }
@@ -578,6 +592,7 @@ public class MainTravel {
         }
 
         if (customer.getBalance() < subTotal) {
+            System.out.println(customer.getBalance());
             System.out.println("CHECK_OUT FAILED: " + customerId + " " + customer.getFullName() + " INSUFFICIENT BALANCE");
             return;
         }
@@ -586,6 +601,7 @@ public class MainTravel {
         LocalDate orderDate = LocalDate.now();
         LocalDate endDate = orderDate.plusDays(1); // Contoh endDate untuk ilustrasi
         Order order = customer.makeOrder(orderDate, endDate, subTotal, 0, 0, subTotal);
+        customer.orderHistory.add(order);
         customer.confirmPay(order.orderNumber);
 
         // Kosongkan keranjang setelah checkout sukses
