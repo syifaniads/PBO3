@@ -38,11 +38,6 @@ class CashbackPromo extends Promotion {
     }
 
     @Override
-    public boolean isShippingFeeEligible(Order order) {
-        return false;
-    }
-
-    @Override
     public double calculateTotalDiscount(Order order) throws Exception {
         return 0;
     }
@@ -52,8 +47,4 @@ class CashbackPromo extends Promotion {
         return Math.min(order.subTotal * super.percentPieces, super.maxPieces);
     }
 
-    @Override
-    public double calculateTotalShippingFeeDiscount(Order order) throws Exception {
-        return 0;
-    }
 }
