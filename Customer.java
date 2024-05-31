@@ -164,16 +164,16 @@ public abstract class Customer {
         System.out.println("Kode Pemesan: " + id);
         System.out.println("Nama: " + getFullName());
         System.out.println("Saldo: " + formatter.format(balance));
-        System.out.println("No |  Nomor Pesanan  |  Subtotal  |  PROMO");
-        System.out.println("===========================================");
+        System.out.println("No |  Nomor Pesanan  | Motor | Mobil |  Subtotal  |  PROMO");
+        System.out.println("===========================================================");
 
         int no = 1;
         for (Order order : orderHistory) {
             if(this instanceof Guest) {
-                System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), "");
+                System.out.printf("%2d | %14d  | %7s |%7s |  %9s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), "");
             }
-            else System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), getPromo());
+            else System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), getPromo());
         }
-        System.out.println("===========================================");
+        System.out.println("===========================================================");
     }
 }
