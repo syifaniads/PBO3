@@ -9,7 +9,6 @@ public class Order {
         double subTotal;
         double total;
         Status status;
-        Promotion promotion;
         List<CartItem> menus;
         Customer customer;
 
