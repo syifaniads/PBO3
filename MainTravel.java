@@ -603,9 +603,6 @@ public class MainTravel {
         customer.orderHistory.add(order);
         customer.confirmPay(order.orderNumber);
 
-        // Kosongkan keranjang setelah checkout sukses
-        customer.getCart().clear();
-
         System.out.println("CHECK_OUT SUCCESS: " + customerId + " " + customer.getFullName());
     }
 }
