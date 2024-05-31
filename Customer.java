@@ -169,10 +169,20 @@ public abstract class Customer {
 
         int no = 1;
         for (Order order : orderHistory) {
-            if(this instanceof Guest) {
-                System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-12s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), "");
+            int motorCount = MainTravel.totalMotorcycles;
+            int carCount = MainTravel.totalCar;
+            for (CartItem item : order.getMenus()) {
+                if (item.menuItem.CustomType != null && item.menuItem.CustomType.equalsIgnoreCase("MOBIL")) {
+                    carCount += item.qty;
+                } else {
+                    motorCount += item.qty;
+                }
             }
-            else System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), getPromo());
+            if (this instanceof Guest) {
+                System.out.printf("%2d | %14d  | %5d | %5d |  %9s |  %-12s\n", no++, order.orderNumber, motorCount, carCount, formatter.format(order.subTotal), "");
+            } else {
+                System.out.printf("%2d | %14d  | %5d | %5d |  %9s |  %-8s\n", no++, order.orderNumber, motorCount, carCount, formatter.format(order.subTotal), getPromo());
+            }
         }
         System.out.println("===========================================================");
     }
