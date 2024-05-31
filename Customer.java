@@ -62,7 +62,7 @@ public abstract class Customer {
 //            } else {
 //                this.balance -= (int) order.total; // Deduct balance by total order amount
             }
-             // Set flag that checkout is done
+            // Set flag that checkout is done
             order.setStatus(Status.SUCCESSFUL);  // Update order status to SUCCESSFUL
             this.isCheckedOut = true;
             return true;
@@ -169,7 +169,7 @@ public abstract class Customer {
 
         int no = 1;
         for (Order order : orderHistory) {
-            if(order.promotion == null) {
+            if(this instanceof Guest) {
                 System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), "");
             }
             else System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), getPromo());
