@@ -31,7 +31,7 @@ public abstract class Customer {
     public abstract String getFullName();
     public abstract int getBalance();
     public abstract void topUp(int amount);
-    abstract Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double shippingFee, double discount, double total);
+    abstract Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double total);
     public abstract Map<Menu, CartItem> getCart();
 
     public boolean confirmPay(int orderNumber) {
@@ -51,22 +51,23 @@ public abstract class Customer {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                }
-                else if(member.getPromo() instanceof PercentOffPromo) {
+                } else if(member.getPromo() instanceof PercentOffPromo) {
                     try {
                         this.balance -= order.total - member.getPromo().calculateTotalDiscount(order);
-                        this.isCheckedOut = true;
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
-                return true;
+            } else {
+                this.balance -= (int) order.total; // Deduct balance by total order amount
             }
-            this.balance -= (int) order.total; // Kurangi saldo dengan total biaya pesanan
-            this.isCheckedOut = true;  // Set flag bahwa checkout sudah dilakukan
+            this.isCheckedOut = true;  // Set flag that checkout is done
+            order.setStatus(Status.SUCCESSFUL);  // Update order status to SUCCESSFUL
+            return true;
         }
-        return true;
+        return false;
     }
+
 
     public boolean addToCart(Menu menuItem, int qty, String startDate) {
         String key = menuItem.IDMenu + startDate;
@@ -148,6 +149,7 @@ public abstract class Customer {
         System.out.println("=".repeat(55));
         System.out.printf("Total                               :        %s\n", currencyFormatter.format(subtotal));
         System.out.printf("Saldo                               :        %s\n", currencyFormatter.format(balance));
+        if(isCheckedOut) cart.clear();      //klo belum di checkout, empty cart
     }
 
     public void printOrderHistory() {
@@ -160,13 +162,15 @@ public abstract class Customer {
         System.out.println("Nama: " + getFullName());
         System.out.println("Saldo: " + formatter.format(balance));
         System.out.println("No |  Nomor Pesanan  |  Subtotal  |  PROMO");
-        System.out.println("==========================================");
+        System.out.println("===========================================");
 
         int no = 1;
         for (Order order : orderHistory) {
-            String promo = order.promotion == null ? "" : order.promotion.getPromoCode();
-            System.out.printf("%2d | %14d | %9s | %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), promo);
+            if(order.promotion == null) {
+                System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), "");
+            }
+            else System.out.printf("%2d | %14d  |  %9s |  %-8s\n", no++, order.orderNumber, formatter.format(order.subTotal), getPromo());
         }
-        System.out.println("==========================================");
+        System.out.println("===========================================");
     }
 }
