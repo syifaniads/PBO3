@@ -58,16 +58,6 @@ public class MainTravel {
         else if (input.startsWith("CHECK_OUT ")) {
             processCheckout(input);
         }
-        else if (input.startsWith("PRINT")) {
-            String[] parts = input.split(" ");
-            String customerId = parts[1];
-            if (!customers.containsKey(customerId)) {
-                System.out.println("PRINT FAILED: NON EXISTENT CUSTOMER");
-            } else {
-                Customer customer = customers.get(customerId);
-                customer.printOrder();
-            }
-        }
         else if(input.startsWith("PRINT_HISTORY")) {
             String[] parts = input.split(" ");
             String customerId = parts[1];
@@ -76,6 +66,16 @@ public class MainTravel {
             } else {
                 Customer customer = customers.get(customerId);
                 customer.printOrderHistory();
+            }
+        }
+        else {
+            String[] parts = input.split(" ");
+            String customerId = parts[1];
+            if (!customers.containsKey(customerId)) {
+                System.out.println("PRINT FAILED: NON EXISTENT CUSTOMER");
+            } else {
+                Customer customer = customers.get(customerId);
+                customer.printOrder();
             }
         }
     }
@@ -89,9 +89,9 @@ public class MainTravel {
             int startBalance = Integer.parseInt(parts[3]);
 
             if (!isMemberExist(id)) {
-                String[] fullname = name.split(" ");
-                String firstName = fullname[0];
-                String lastName = fullname.length > 1 ? fullname[1] : "";
+                String[] fullName = name.split(" ");
+                String firstName = fullName[0];
+                String lastName = fullName.length > 1 ? fullName[1] : "";
                 Member newMember = new Member(id, firstName, lastName, membershipDate, startBalance);
                 members.add(newMember);
                 members = mergeSortMembers(members);
@@ -592,15 +592,14 @@ public class MainTravel {
         }
 
         if (customer.getBalance() < subTotal) {
-            System.out.println(customer.getBalance());
             System.out.println("CHECK_OUT FAILED: " + customerId + " " + customer.getFullName() + " INSUFFICIENT BALANCE");
             return;
         }
 
         // Simulasi pembuatan pesanan
         LocalDate orderDate = LocalDate.now();
-        LocalDate endDate = orderDate.plusDays(1); // Contoh endDate untuk ilustrasi
-        Order order = customer.makeOrder(orderDate, endDate, subTotal, 0, 0, subTotal);
+        LocalDate endDate = orderDate.plusDays(1);
+        Order order = customer.makeOrder(orderDate, endDate, subTotal, subTotal);
         customer.orderHistory.add(order);
         customer.confirmPay(order.orderNumber);
 
