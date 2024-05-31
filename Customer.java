@@ -30,6 +30,7 @@ public abstract class Customer {
 
     public abstract String getFullName();
     public abstract int getBalance();
+
     public abstract void topUp(int amount);
     abstract Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double total);
     public abstract Map<Menu, CartItem> getCart();
@@ -58,11 +59,12 @@ public abstract class Customer {
                         throw new RuntimeException(e);
                     }
                 }
-            } else {
-                this.balance -= (int) order.total; // Deduct balance by total order amount
+//            } else {
+//                this.balance -= (int) order.total; // Deduct balance by total order amount
             }
-            this.isCheckedOut = true;  // Set flag that checkout is done
+             // Set flag that checkout is done
             order.setStatus(Status.SUCCESSFUL);  // Update order status to SUCCESSFUL
+            this.isCheckedOut = true;
             return true;
         }
         return false;
@@ -148,6 +150,7 @@ public abstract class Customer {
         }
         System.out.println("=".repeat(55));
         System.out.printf("Total                               :        %s\n", currencyFormatter.format(subtotal));
+        if(this instanceof Guest) balance -= subtotal;
         System.out.printf("Saldo                               :        %s\n", currencyFormatter.format(balance));
         if(isCheckedOut) cart.clear();      //klo belum di checkout, empty cart
     }
