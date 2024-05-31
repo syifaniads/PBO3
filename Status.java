@@ -1,3 +1,3 @@
-enum Status {
-    UNPAID, SUCCESSFUL, CANCELED
+public enum Status {
+    UNPAID, SUCCESSFUL
 }
