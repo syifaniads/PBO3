@@ -16,6 +16,8 @@ public class MainTravel {
     private static List<Menu> menu = new ArrayList<>();
     private static List<Promotion> promoList = new ArrayList<>();
     private final static Map<String, Customer> customers = new HashMap<>();
+    public static int totalCar = 0;
+    public static int totalMotorcycles = 0;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -265,8 +267,10 @@ public class MainTravel {
         Menu newItem;
         if (type.equalsIgnoreCase("MOBIL")) {
             newItem = new Menu(IDMenu, NamaMenu, PlatNomor, Harga, CustomType);
+            totalCar++;
         } else {
             newItem = new Menu(IDMenu, NamaMenu, PlatNomor, Harga);
+            totalMotorcycles++;
         }
 
         menu.add(newItem);
