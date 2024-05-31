@@ -3,10 +3,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 class Guest extends Customer {
-//    private int startBalance;
+    private int startBalance;
 
     public Guest(String id, int balance) {
         super(id, "GUEST", "", balance);
+        this.startBalance = balance;
         this.cart = new HashMap<>();
     }
 
@@ -39,7 +40,7 @@ class Guest extends Customer {
 
     @Override
     public int getBalance() {
-        return balance;
+        return startBalance;
     }
 
     @Override
