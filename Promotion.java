@@ -21,32 +21,12 @@ abstract class Promotion implements Applicable, Comparable<Promotion> {
 
     @Override
     public abstract boolean isCustomerEligible(Customer customer) ;
-//        // Umur akun lebih dari 30 hari
-//        if (customer instanceof Guest) {
-//            System.out.println("funky");
-//            return false; // Guest tidak berlaku
-//        }
-//        else if (customer instanceof Member) {
-//            System.out.println("eloti 6.0");
-//            long membershipDuration = ((Member) customer).getMembershipDuration();
-//            System.out.println(membershipDuration);
-//            return membershipDuration > 30;
-//        }
-//        return true;
     @Override
     public abstract boolean isMinimumPriceEligible(Order order);
-
-    @Override
-    public abstract boolean isShippingFeeEligible(Order order);
-
     @Override
     public abstract double calculateTotalDiscount(Order order) throws Exception;
-
     @Override
     public abstract double calculateTotalCashback(Order order) throws Exception;
-
-    @Override
-    public abstract double calculateTotalShippingFeeDiscount(Order order) throws Exception;
 
     public int compareTo(Promotion o) {
         // Implementasi perbandingan berdasarkan tanggal mulai
