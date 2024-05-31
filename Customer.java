@@ -170,7 +170,7 @@ public abstract class Customer {
         int no = 1;
         for (Order order : orderHistory) {
             if(this instanceof Guest) {
-                System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), "");
+                System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-12s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), "");
             }
             else System.out.printf("%2d | %14d  | %5s | %5s |  %9s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCar, formatter.format(order.subTotal), getPromo());
         }
