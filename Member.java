@@ -51,8 +51,8 @@ class Member extends Customer {
     }
 
     @Override
-    public Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double shippingFee, double discount, double total) {
-        return new Order(orderDate, endDate, subTotal, shippingFee, discount, total, this);
+    public Order makeOrder(LocalDate orderDate, LocalDate endDate, double subTotal, double total) {
+        return new Order(orderDate, endDate, subTotal, total, this);
     }
 
     public Map<Menu, CartItem> getCart() {
