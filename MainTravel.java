@@ -14,10 +14,10 @@ public class MainTravel {
     private static List<Member> members = new ArrayList<>();
     private static List<Guest> guests = new ArrayList<>();
     private static List<Menu> menu = new ArrayList<>();
+    static int totalCars = 0;
+    static int totalMotorcycles = 0;
     private static List<Promotion> promoList = new ArrayList<>();
     private final static Map<String, Customer> customers = new HashMap<>();
-    public static int totalCar = 0;
-    public static int totalMotorcycles = 0;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -267,10 +267,8 @@ public class MainTravel {
         Menu newItem;
         if (type.equalsIgnoreCase("MOBIL")) {
             newItem = new Menu(IDMenu, NamaMenu, PlatNomor, Harga, CustomType);
-            totalCar++;
         } else {
             newItem = new Menu(IDMenu, NamaMenu, PlatNomor, Harga);
-            totalMotorcycles++;
         }
 
         menu.add(newItem);
@@ -496,7 +494,6 @@ public class MainTravel {
 
             LocalDate currentDate = LocalDate.now();
             if (currentDate.isBefore(promo.startDate) || currentDate.isAfter(promo.endDate)) {
-                System.out.println("comel");
                 System.out.println("APPLY_PROMO FAILED: " + KodePromo + " is EXPIRED");
                 return;
             }
@@ -571,35 +568,29 @@ public class MainTravel {
             return;
         }
 
-        int saldoAwal = customer.getBalance();
+        int saldoAwal = customer.balance;
         customer.topUp(topUpAmount);
         int saldoAkhir = customer.balance;
-
         System.out.println("TOPUP SUCCESS: " + customer.getFullName() + " " + saldoAwal + " => " + saldoAkhir);
     }
 
     private static void processCheckout(String input) {
         String[] parts = input.split(" ");
         String customerId = parts[1];
-
         if (!customers.containsKey(customerId)) {
             System.out.println("CHECK_OUT FAILED: NON EXISTENT CUSTOMER OR MENU");
             return;
         }
-
         Customer customer = customers.get(customerId);
         Map<Menu, CartItem> cart = customer.getCart();
-
         double subTotal = 0;
         for (CartItem item : cart.values()) {
             subTotal += item.qty * item.menuItem.Harga;
         }
-
-        if (customer.getBalance() < subTotal) {
+        if (customer.balance < subTotal) {
             System.out.println("CHECK_OUT FAILED: " + customerId + " " + customer.getFullName() + " INSUFFICIENT BALANCE");
             return;
         }
-
         // Simulasi pembuatan pesanan
         LocalDate orderDate = LocalDate.now();
         LocalDate endDate = orderDate.plusDays(1);
@@ -607,6 +598,10 @@ public class MainTravel {
         customer.orderHistory.add(order);
         customer.confirmPay(order.orderNumber);
 
+        // Kosongkan keranjang setelah checkout sukses
+        customer.getCart().clear();
+
         System.out.println("CHECK_OUT SUCCESS: " + customerId + " " + customer.getFullName());
     }
 }
+
