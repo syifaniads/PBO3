@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Locale;
 
 public abstract class Customer {
     protected String id;
@@ -44,31 +45,29 @@ public abstract class Customer {
             }
         }
         if (order != null) {
-            if(this instanceof Member) {
+            if (this instanceof Member) {
                 Member member = (Member) this;
-                if(member.getPromo() instanceof CashbackPromo) {
+                if (member.getPromo() instanceof CashbackPromo) {
                     try {
-                        this.balance += member.getPromo().calculateTotalCashback(order) - order.subTotal;
+                        this.balance += (member.getPromo().calculateTotalCashback(order) - order.subTotal);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                } else if(member.getPromo() instanceof PercentOffPromo) {
+                } else if (member.getPromo() instanceof PercentOffPromo) {
                     try {
-                        this.balance -= order.total - member.getPromo().calculateTotalDiscount(order);
+                        balance -= (order.subTotal - member.getPromo().calculateTotalDiscount(order));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
-//            } else {
-//                this.balance -= (int) order.total; // Deduct balance by total order amount
             }
-            // Set flag that checkout is done
-            order.setStatus(Status.SUCCESSFUL);  // Update order status to SUCCESSFUL
             this.isCheckedOut = true;
+            order.setStatus(Status.SUCCESSFUL);
             return true;
         }
         return false;
     }
+
 
 
     public boolean addToCart(Menu menuItem, int qty, String startDate) {
@@ -110,6 +109,11 @@ public abstract class Customer {
 
         System.out.println("Kode Pemesan: " + id);
         System.out.println("Nama: " + getFullName());
+        Order order = new Order() ;
+        System.out.println("Nomor Pesanan: " + order.orderNumber);
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+        System.out.println("Tanggal Pesanan: " + currentDate.format(formatter));
 
         List<CartItem> menusToPrint;
         if (!cart.isEmpty()) {
@@ -123,36 +127,41 @@ public abstract class Customer {
 
         menusToPrint.sort(Comparator.comparing((CartItem c) -> LocalDate.parse(c.startDate, dateFormatter)).thenComparingDouble(c -> c.menuItem.Harga));
 
-        System.out.println("No | Menu                           | Dur. | Subtotal");
+        System.out.printf("%3s | %-25s | %3s | %8s \n", "No", "Menu", "Dur.", "Subtotal");
         System.out.println("=".repeat(55));
         int no = 1;
         double subtotal = 0;
         for (CartItem cartItem : menusToPrint) {
             double itemSubtotal = cartItem.qty * cartItem.menuItem.Harga;
-            System.out.printf("%2d | %-30s | %4d | %s\n", no++, cartItem.menuItem.NamaMenu + " " + cartItem.menuItem.PlatNomor, cartItem.qty, currencyFormatter.format(itemSubtotal));
-            System.out.printf("     %s - %s\n", cartItem.startDate, LocalDate.parse(cartItem.startDate, dateFormatter).plusDays(cartItem.qty).format(dateFormatter));
+            System.out.printf("%3d | %-25s | %3d  |%8s\n", no++, cartItem.menuItem.NamaMenu + " " + cartItem.menuItem.PlatNomor, cartItem.qty, currencyFormatter.format(itemSubtotal));
+            System.out.printf("      %s - %s\n", cartItem.startDate, LocalDate.parse(cartItem.startDate, dateFormatter).plusDays(cartItem.qty).format(dateFormatter));
             subtotal += itemSubtotal;
         }
         System.out.println("=".repeat(55));
-        System.out.printf("SubTotal                            :        %s\n", currencyFormatter.format(subtotal));
-        if(this instanceof Member) {
+        System.out.printf("%-32s: %14s\n", "SubTotal", currencyFormatter.format(subtotal));
+        System.out.println("=".repeat(55));
+        System.out.printf("%-32s: %14s\n", "Total", currencyFormatter.format(subtotal));
+        if (this instanceof Member) {
             Member member = (Member) this;
             double promoNya;
             try {
-                if(member.getPromo() instanceof PercentOffPromo) {
+                if (member.getPromo() instanceof PercentOffPromo) {
                     promoNya = member.getPromo().calculateTotalDiscount(member.getOrder());
+                } else {
+                    promoNya = member.getPromo().calculateTotalCashback(member.getOrder());
                 }
-                else promoNya = member.getPromo().calculateTotalCashback(member.getOrder());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            System.out.printf("PROMO: %s                       :        %s\n", member.getPromo().getPromoCode(), (member.getPromo() instanceof CashbackPromo) ? currencyFormatter.format(promoNya) : "-"+currencyFormatter.format(promoNya));
+//            this.balance -= subtotal;
+            System.out.printf("%-7s%-25s:%15s\n", "PROMO:", member.getPromo().getPromoCode(), (member.getPromo() instanceof CashbackPromo) ? currencyFormatter.format(promoNya) : "-" + currencyFormatter.format(promoNya));
         }
-        System.out.println("=".repeat(55));
-        System.out.printf("Total                               :        %s\n", currencyFormatter.format(subtotal));
-        if(this instanceof Guest) balance -= subtotal;
-        System.out.printf("Saldo                               :        %s\n", currencyFormatter.format(balance));
-        if(isCheckedOut) cart.clear();      //klo belum di checkout, empty cart
+        if (this instanceof Guest) {
+            this.balance -= subtotal;
+        }
+        System.out.printf("%-32s: %14s\n", "Saldo", currencyFormatter.format(balance));
+        if (isCheckedOut) cart.clear(); // klo belum di checkout, empty cart
+        getCart().clear();
     }
 
     public void printOrderHistory() {
@@ -164,26 +173,17 @@ public abstract class Customer {
         System.out.println("Kode Pemesan: " + id);
         System.out.println("Nama: " + getFullName());
         System.out.println("Saldo: " + formatter.format(balance));
-        System.out.println("No |  Nomor Pesanan  | Motor | Mobil |  Subtotal  |  PROMO");
+        System.out.printf("%4s | %10s | %5s | %5s | %8s | %-8s\n", "No", "No. Pesanan", "Motor", "Mobil", " Subtotal", "PROMO");
         System.out.println("===========================================================");
 
         int no = 1;
         for (Order order : orderHistory) {
-            int motorCount = MainTravel.totalMotorcycles;
-            int carCount = MainTravel.totalCar;
-            for (CartItem item : order.getMenus()) {
-                if (item.menuItem.CustomType != null && item.menuItem.CustomType.equalsIgnoreCase("MOBIL")) {
-                    carCount += item.qty;
-                } else {
-                    motorCount += item.qty;
-                }
+            if(this instanceof Guest) {
+                System.out.printf("%4d | %11d | %5d | %5d |  %8d |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCars, formatter.format(order.subTotal), "");
             }
-            if (this instanceof Guest) {
-                System.out.printf("%2d | %14d  | %5d | %5d |  %9s |  %-12s\n", no++, order.orderNumber, motorCount, carCount, formatter.format(order.subTotal), "");
-            } else {
-                System.out.printf("%2d | %14d  | %5d | %5d |  %9s |  %-8s\n", no++, order.orderNumber, motorCount, carCount, formatter.format(order.subTotal), getPromo());
-            }
+            else System.out.printf("%4d | %11d | %5s | %5s |  %8s |  %-8s\n", no++, order.orderNumber++, MainTravel.totalMotorcycles, MainTravel.totalCars, formatter.format(order.subTotal), getPromo());
         }
         System.out.println("===========================================================");
     }
 }
+
